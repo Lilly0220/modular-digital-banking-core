@@ -1,0 +1,60 @@
+@startuml
+title Project 11 - Modular Digital Banking Core
+
+class Account {
+    +account_number: str
+    +holder_name: str
+    +balance: Decimal
+    +transactions: list[Transaction]
+}
+
+class Transaction {
+    +kind: str
+    +amount: Decimal
+    +balance_after: Decimal
+    +description: str
+    +timestamp: datetime
+}
+
+Account "1" *-- "0..*" Transaction : records
+
+package "banking_core module" {
+    +open_account(account_number, holder_name, initial_deposit)
+    +deposit(account, amount, description)
+    +withdraw(account, amount, description)
+    +transfer(source, destination, amount)
+    +simple_interest(principal, annual_rate, years)
+    +compound_interest(principal, annual_rate, times_per_year, years)
+    +calculate_emi(principal, annual_rate, months)
+    +statement(account, *months, **filters)
+    +fraud_check(amount, daily_total, transaction_limit)
+    +validate_positive_amount(amount)
+    +validate_non_negative_amount(amount)
+}
+
+package "Command-line interface" {
+    class main_py {
+        +main(): None
+    }
+}
+
+package "Automated tests" {
+    class BankingCoreTests {
+        +setUp()
+        +test_...()
+    }
+}
+
+main_py ..> Account : creates and uses
+main_py ..> "banking_core module" : imports
+BankingCoreTests ..> "banking_core module" : tests
+"banking_core module" ..> Account : creates/updates
+"banking_core module" ..> Transaction : records
+
+note right of "banking_core module"
+  All regular transaction history
+  belongs to each Account object.
+  A legacy global counter is retained
+  only to demonstrate the global keyword.
+end note
+@enduml
